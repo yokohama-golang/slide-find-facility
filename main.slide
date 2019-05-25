@@ -6,7 +6,7 @@
 浜野義丈
 
 
-https://github.com/yoshitake-hamano/yhgo_find_facility
+https://github.com/yokohama-golang/slide-find-facility
 
 * 自己紹介
 
@@ -87,10 +87,15 @@ https://github.com/yoshitake-hamano/yhgo_find_facility
 https://aws.amazon.com/jp/lambda/pricing/
 を確認すると384MBの場合、1ヶ月の無料枠は1,066,667秒。
 
-今回作ったLambdaは1日に10[分]を3回実行するので
+今回作ったLambdaは1日に15[分]を3回実行するので
 
-   10[分] x 60[秒/分] x 3[回/日] x 30[日/月] = 81,000[秒/月]
+   15[分] x 60[秒/分] x 3[回/日] x 30[日/月] = 81,000[秒/月]
 
 1ヶ月に81,000秒使用している。
 
 ということは、概ね今回の案件を10件程度作っても無料枠に収まる。
+
+* Link
+
+.link https://github.com/yokohama-golang/find-facility find-facilityプログラム
+
