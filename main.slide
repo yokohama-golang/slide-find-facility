@@ -1,0 +1,96 @@
+会議室の予約状況をサーバーレスでスマホに通知してみた
+
+2019/5/25
+
+
+浜野義丈
+
+
+https://github.com/yoshitake-hamano/yhgo_find_facility
+
+* 自己紹介
+
+仕事
+- Linuxで動く組み込みソフトウェア開発（デバドラ寄り）
+
+趣味
+- 電子工作(Raspberry pi, Arduino, etc)
+- Maker Faire Tokyoに2016年から出展
+- 今年も応募しました
+- 3Dプリンター買いました
+
+.image images/sk8.jpg 0 500
+
+* お困り事
+
+かながわ県民センターの会議室を予約しているが、利用者の人数が増えてきました。
+そのため、空きが出るまで確認し続けることが大変です。
+そこで、予約確認を自動化することを考えました。
+
+* 手動でやっていること
+
+1. 「施設予約システムメニュー」
+2. 「1. 空き照会・抽選申込・予約申込」
+3. 「かながわ県民センター」「次へ」
+4. 「表示開始日」を適当に、「１ヶ月」「土」「次へ」
+5. 定員が12, 18, 30, 48人の会議室の日程を選択(最大20件)、「次へ」
+6. 13時から17時まで全て○の会議室を探す
+7. 選択できていない候補日を選択し、6.に戻る
+8. その次の1ヶ月を検索するために4.に戻る
+
+* 方針
+
+- サーバーレス
+- 毎朝、スマホに通知
+- 無料
+
+* 概要
+
+.image images/summary.png 0 700
+
+* AWS側
+
+.image images/summary.png 0 700
+
+- 最初console環境でプログラムを作成し、できたらLambda化
+- Webスクレイピングにagoutiを使用
+- IFTTTへ通知するためにjamesmillerio/go-ifttt-makerを使用
+- AWS Lambdaを使用するためにaws-lambda-go/lambdaを使用
+
+  $ go get -u github.com/aws/aws-lambda-go/lambda
+  
+  $ GOOS=linux GOARCH=amd64 go build -tags aws -o find
+  $ zip aws.zip find phantomjs
+
+* AWS側
+
+.code example/aws.go /START HEADER OMIT/,/END HEADER OMIT/
+
+* AWS側
+
+.code example/aws.go /START BODY OMIT/,/END BODY OMIT/
+
+* IFTTT側
+
+.image images/summary.png 0 700
+
+- Webhooksを設定
+- スマホにIFTTTアプリをインストール
+
+* 躓いたこと
+
+- AWS Lambdaのタイムアウト最大値が15分→5ヶ月分の検索を3個に分割処理
+- エラーログも出さずに終了することがあった→128MBから384MBにメモリを増加
+
+* 料金
+
+https://aws.amazon.com/jp/lambda/pricing/
+を確認すると384MBの場合、1ヶ月の無料枠は1,066,667秒。
+
+今回作ったLambdaは1日に10[分]を3回実行するので
+
+   10[分] x 60[秒/分] x 3[回/日] x 30[日/月] = 81,000[秒/月]
+
+1ヶ月に81,000秒使用している。
+
+ということは、概ね今回の案件を10件程度作っても無料枠に収まる。
